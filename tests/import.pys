@@ -1,0 +1,7 @@
+LOAD	("Python")
+LOAD	(0)
+LOAD	(None)
+IMPORT	(sys)
+GETATTR	(version)
+PRINT	2
+POP

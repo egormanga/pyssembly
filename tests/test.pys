@@ -1,0 +1,25 @@
+LOAD	(2)
+STORE	(a)
+LOAD	(3)
+STORE	(b)
+
+LOAD	(a)
+LOAD	(b)
+DIV
+LOAD	(a)
+LOAD	(b)
+SUB
+MUL
+STORE	$c
+
+LOAD	$c
+LOAD	(b)
+DIV
+LOAD	(a)
+MUL
+
+LOAD	$c
+LOAD	(2)
+POW
+PRINT	2
+POP

@@ -1,0 +1,7 @@
+CALL	(input)
+CALL	(int) 1
+CALL	(input)
+CALL	(int) 1
+ADD
+PRINT	1
+POP
