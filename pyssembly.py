@@ -51,17 +51,24 @@ stddef = {
 
 	'ITER': 'GET_ITER',
 	'FOR': 'FOR_ITER',
+	'CMP': 'COMPARE_OP',
 	'IMPORT': 'IMPORT_NAME',
 	'CALL': 'CALL_FUNCTION',
 	'CALLKW': 'CALL_FUNCTION_KW',
 	'CALLEX': 'CALL_FUNCTION_EX',
 	'RET': 'RETURN_VALUE',
 
+	'JA': 'JUMP_ABSOLUTE',
 	'JUMPA': 'JUMP_ABSOLUTE',
+	'JF': 'JUMP_FORWARD',
 	'JUMPF': 'JUMP_FORWARD',
+	'JPT': 'POP_JUMP_IF_TRUE',
 	'JPOPT': 'POP_JUMP_IF_TRUE',
+	'JPF': 'POP_JUMP_IF_FALSE',
 	'JPOPF': 'POP_JUMP_IF_FALSE',
+	'JTOP': 'JUMP_IF_TRUE_OR_POP',
 	'JTORPOP': 'JUMP_IF_TRUE_OR_POP',
+	'JFOP': 'JUMP_IF_FALSE_OR_POP',
 	'JFORPOP': 'JUMP_IF_FALSE_OR_POP',
 
 	'BOOL': 'CALL_FUNCTION	(bool) 1',
@@ -100,7 +107,7 @@ class Code:
 		lineno = int()
 		skip = bool()
 		for ii, i in enumerate(src.split('\n')):
-			lineno += self.srclnotab[ii] if (self.srclnotab is not None) else +1
+			lineno += self.srclnotab[ii] if (self.srclnotab) else +1
 			if (not i.strip()): continue
 			if (i[0] == '#'):
 				action, _, value = map(str.strip, i.partition(' '))
@@ -182,11 +189,12 @@ class Code:
 			lastln = i.lineno
 		return bytes(r)
 
-def isname(arg): return re.match(r'^\(\w+\)$', arg) is not None and arg[1:-1].isidentifier() and not keyword.iskeyword(arg[1:-1])
+def isname(arg): return re.match(r'^\(.+\)$', arg) is not None and arg[1:-1].replace('.', '').isidentifier() and not keyword.iskeyword(arg[1:-1])
 def islocal(arg): return re.match(r'^\$\w+$', arg) is not None
 def isconst(arg): return re.match(r'^\(.+\)$', arg) is not None
 def islabel(arg): return re.match(r'^:\w+$', arg) is not None
 def isdir(arg): return re.match(r'^\.\w+$', arg) is not None
+def iscmpop(arg): return re.match(r'^\(.+\)$', arg) is not None and arg[1:-1] in dis.cmp_op
 
 def mkinstr(token, *args, code, **kwargs):
 	if (islabel(token)): opcode = 'Label'
@@ -221,6 +229,8 @@ class Instruction:
 					except ValueError: args[ii] = len(code.names); code.names.append(name)
 			elif (instr.haslabel):
 				if (islabel(arg)): args[ii] = code.labels[arg]
+			elif (instr.hascompare):
+				if (iscmpop(arg)): args[ii] = dis.cmp_op.index(arg[1:-1])
 
 		instr.set_args(*args)
 		return instr
